@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.helper.excelHelper;
 import com.example.demo.model.Cars;
 import com.example.demo.service.CarService;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -66,7 +67,7 @@ public class CarController {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
-            return new ResponseEntity<>(cars, HttpStatus.OK);
+            return new ResponseEntity<>(new Gson().toJson(cars), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -82,4 +83,15 @@ public class CarController {
                 .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
                 .body(file);
     }
+
+    @GetMapping("/json")
+    public ResponseEntity<?> getFileJson() {
+        String filename = "listCars.xlsx";
+        InputStreamResource file = new InputStreamResource(carService.load());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                .body(file);
+    }
+
 }

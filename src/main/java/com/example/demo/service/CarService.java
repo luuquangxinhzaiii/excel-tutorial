@@ -45,6 +45,11 @@ public class CarService {
         return in;
     }
 
+    public ByteArrayInputStream json(String Json) {
+        ByteArrayInputStream in = excelHelper.jsonCarsToExcel(Json);
+        return in;
+    }
+
     public List<Cars> getAllTutorials() {
         return carRepository.findAll();
     }

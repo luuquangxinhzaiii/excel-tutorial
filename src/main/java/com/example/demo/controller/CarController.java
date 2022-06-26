@@ -86,8 +86,9 @@ public class CarController {
 
     @GetMapping("/json")
     public ResponseEntity<?> getFileJson() {
-        String filename = "listCars.xlsx";
-        InputStreamResource file = new InputStreamResource(carService.load());
+        String filename = "listCarsJson.xlsx";
+        List<Cars> cars = carService.getAllTutorials();
+        InputStreamResource file = new InputStreamResource(carService.json(new Gson().toJson(cars)));
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))

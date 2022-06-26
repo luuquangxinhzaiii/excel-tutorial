@@ -1,10 +1,11 @@
 package com.example.demo.helper;
 
 import com.example.demo.model.Cars;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,6 +52,57 @@ public class excelHelper {
                 row.createCell(0).setCellValue(car.getId());
                 row.createCell(1).setCellValue(car.getName());
                 row.createCell(2).setCellValue(car.getCount());
+            }
+
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
+        }
+    }
+
+    public static ByteArrayInputStream jsonCarsToExcel(String json) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Workbook workbook = new XSSFWorkbook();
+            ObjectNode jsonData = (ObjectNode) mapper.readTree(json);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Iterator<String> sheetItr = jsonData.fieldNames();
+            while (sheetItr.hasNext()) {
+                String sheetName = sheetItr.next();
+                Sheet sheet = workbook.createSheet(sheetName);
+
+                ArrayNode sheetData = (ArrayNode) jsonData.get(sheetName);
+                ArrayList<String> headers = new ArrayList<String>();
+
+                CellStyle headerStyle = workbook.createCellStyle();
+                Font font = workbook.createFont();
+                headerStyle.setFont(font);
+
+                Row header = sheet.createRow(0);
+                Iterator<String> it = sheetData.get(0).fieldNames();
+                int headerIdx = 0;
+                while (it.hasNext()) {
+                    String headerName = it.next();
+                    headers.add(headerName);
+                    Cell cell=header.createCell(headerIdx++);
+                    cell.setCellValue(headerName);
+                    cell.setCellStyle(headerStyle);
+                }
+
+                for (int i = 0; i < sheetData.size(); i++) {
+                    ObjectNode rowData = (ObjectNode) sheetData.get(i);
+                    Row row = sheet.createRow(i + 1);
+                    for (int j = 0; j < headers.size(); j++) {
+                        String value = rowData.get(headers.get(j)).asText();
+                        row.createCell(j).setCellValue(value);
+                    }
+                }
+
+                for (int i = 0; i < headers.size(); i++) {
+                    sheet.autoSizeColumn(i);
+                }
+
             }
 
             workbook.write(out);

@@ -21,7 +21,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.apache.poi:poi-ooxml:3.9'
     implementation 'com.google.code.gson:gson:2.8.5'
-    compileOnly 'org.projectlombok:lombok'
+//    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.projectlombok:lombok:1.18.22'
+
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }

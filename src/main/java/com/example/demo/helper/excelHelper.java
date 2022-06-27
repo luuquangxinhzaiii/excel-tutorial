@@ -65,7 +65,7 @@ public class excelHelper {
         try {
             ObjectMapper mapper = new ObjectMapper();
             Workbook workbook = new XSSFWorkbook();
-            ObjectNode jsonData = (ObjectNode) mapper.readTree(json);
+            ArrayNode jsonData = (ArrayNode) mapper.readTree(json);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Iterator<String> sheetItr = jsonData.fieldNames();
             while (sheetItr.hasNext()) {
